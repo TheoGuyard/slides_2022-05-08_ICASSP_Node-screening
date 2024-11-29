@@ -1,0 +1,286 @@
+\documentclass[10pt]{beamer}
+
+\usetheme[
+  numbering=fraction,
+  block=fill,
+  % background=dark
+  ]{metropolis}
+
+\usepackage{appendixnumberbeamer}
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+%\usepackage{pgfplots}
+%\usepgfplotslibrary{dateplot}
+
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{\paperwidth}
+\setlength{\TPVertModule}{\paperheight}
+
+\include{headings/packages}
+\include{headings/shortcuts}
+\include{headings/macros}
+\include{headings/glossaries}
+
+\title{Node-screening tests for the $\ell_0$-penalized least-squares problem}
+\date{ICASSP 2022}
+\author{Theo Guyard${}^{\star}$, Cedric Herzet${}^{\dagger}$, Clement Elvira${}^{\ddagger}$}
+\institute{
+  \(^{\star}\) Univ Rennes, INSA Rennes, CNRS, IRMAR-UMR 6625, F-35000 Rennes, France \\ 
+	\(^{\dagger}\) INRIA Rennes-Bretagne Atlantique, Campus de Beaulieu, 35000 Rennes, France \\ 
+  \(^{\ddagger}\) SCEE/IETR UMR CNRS 6164, CentraleSupélec, 35510 Cesson Sévigné, France
+}
+
+\begin{document}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+\begin{frame}{Table of contents}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{The $\ell_0$-penalized least-squares problem}
+
+\begin{frame}{Sparse-linear problem}
+  \textbf{Ingredients of the problem :}
+  \begin{itemize}
+    \item An \emphone{observation} $\obs \in \kR^{\ddim}$
+    \item A \emphone{dictionary} $\dic=[\atom_{\idxentry}]_{\idxentry=1}^{\pdim} \in \kR^{\ddim\times\pdim}$ (columns $\equiv$ \emphone{atoms})
+  \end{itemize}
+
+  \pause
+
+  \textbf{Objectives :}
+  \begin{itemize}
+    \item Approximate the \emphone{observation} as a linear combination of the \emphone{atoms}
+    \item The linear combination must be \emph{sparse}
+  \end{itemize}
+
+  \pause
+
+  \begin{center}
+    \begin{minipage}{0.5\linewidth}
+      \begin{block}{Problem}
+        \centering
+        Find $\pv$ \emph{sparse} such that $\obs \simeq \dic \pv$
+      \end{block}
+    \end{minipage}
+  \end{center}
+  The vector $\pv$ weights each atom in the approximation.
+\end{frame}
+
+
+
+
+
+\begin{frame}{$\ell_0$-penalized problem}
+  \textbf{Idea :} Solve the problem
+  \begin{block}{$\ell_0$-penalized least-squares}
+    \begin{equation}
+      \label{prob:prob} \tag{\(\mpb\)}
+      \optobj \ =
+      \left\{
+      \begin{array}{rl}
+        \min & \tfrac{1}{2} \emphone{\norm{\obs-\dic\pv}{2}^2} + \reg \emphone{\norm{\pv}{0}}\\
+        \text{s.t.} & \kvvbar{\pv}_{\infty} \leq \bigM
+      \end{array}
+      \right.
+    \end{equation}
+  \end{block}
+  where $\reg > 0$ is a tuning parameter and $\bigM$ is a big-enough constant.
+
+  \pause
+
+  \begin{center}
+    Problem \eqref{prob:prob} $\quad \xlongrightarrow{\text{reformulation}} \quad$\glsdesc{mip}
+  \end{center}
+
+  \pause
+
+  \textbf{Properties :}
+  \begin{itemize}
+    \item Quadratic objective
+    \item Linear constraints
+    \item Continuous and integer variables
+    \item Combinatorial problem
+    \item Can be addressed with \emphone{\glsdesc{bnb} (\gls{bnb})} algorithms
+  \end{itemize}
+\end{frame}
+
+\section{Branch-and-bound algorithms}
+
+\begin{frame}{Branch-and-bound principle}
+  \textbf{Idea :}
+  \begin{itemize}
+    \item Enumerate all feasible solutions
+    \item Use rules to discard irrelevant candidates
+    \item[$\rightarrow$] In a nutshell : \emphone{explore a decision tree and prune uninteresting nodes} 
+  \end{itemize}
+
+  \pause
+
+  \textbf{Node} $\nodeSymb = (\setzero,\setone,\setnone)$ \textbf{where :}
+  \begin{itemize}
+    \item $\setzero$ : indices of $\pv$ fixed to \emphone{zero}
+    \item $\setone$ : indices of $\pv$ fixed to \emphone{non-zero}
+    \item $\setnone \ $ : indices not fixed yet
+  \end{itemize}
+
+  \pause
+
+  \begin{figure}
+    \centering
+    \scalebox{0.7}{\input{img/bnb}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Processing node $\nodeSymb = (\setzero,\setone,\setnone)$}
+
+  \textbf{Question :} Does any global solution matches the current constraints ? 
+
+  \pause
+
+  \vspace{0.2cm}
+
+  \begin{block}{\emphone{Relaxed} problem at node $\nodeSymb$}
+    \begin{equation}
+      \label{prob:relax-node} \tag{\(\node{\rpb}\)}
+      \node{\robj} \ =
+      \left\{
+      \begin{array}{rl}
+        \min & \tfrac{1}{2} \norm{\obs-\dic\pv}{2}^2 + 
+        \emphone{\tfrac{\reg}{\bigM} \norm{\subnone{\pv}}{1} + \reg \card{\setone}}
+        \\
+        \text{s.t.} & \kvvbar{\pv}_{\infty} \leq \bigM, \ \subzero{\pv} = \0
+      \end{array}
+      \right.
+    \end{equation}
+    Let $\UB{\pobj}$ be an upper bound on $\optobj$. If \emphone{$\UB{\pobj} < \node{\robj}$}, then no optimizers of \eqref{prob:prob} can match the constraints of node $\nodeSymb$.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Exploration and pruning process}
+  \begin{figure}
+    \centering
+    \scalebox{1}{\input{img/bnb}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Exploration and pruning process}
+  \begin{figure}
+    \centering
+    \scalebox{1}{\input{img/bnb-2}}
+  \end{figure}
+\end{frame}
+
+\section{Node-screening tests}
+
+\begin{frame}{Dual problem}
+  \textbf{Question :} Is it possible to detect nodes that cannot yield a global optimizers \emphone{without processing them} ?
+
+  \pause
+  \vspace{0.2cm}
+
+  \begin{block}{\emphone{Dual} problem at node $\nodeSymb$}
+    \begin{equation} 
+      \label{prob:dual-node}
+      \tag{$\node{\dpb}$} 
+      \max_{\dv \in \kR^{\ddim}} \ 
+      \Big\{ 
+          \node{\dfunc}(\dv) \triangleq \tfrac{1}{2}\norm{\obs}{2}^2 - \tfrac{1}{2}\norm{\obs-\dv}{2}^2 - 
+          \sum_{\idxentry \in \setnone} [\pivot{}{}(\ktranspose{\atom}_{\idxentry}\dv)]_+ - 
+          \sum_{\idxentry \in \setone} \pivot{}{}(\ktranspose{\atom}_{\idxentry}\dv)
+      \Big\}
+    \end{equation}
+  \end{block} 
+
+  \pause
+
+  \begin{itemize}
+    \item One common term
+    \item Terms corresponding to the current constraints
+    \item The ``pivot'' function is defined as $\pivot{}{}(t) = \bigM |t| - \reg$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Dual objective link}
+  \textbf{Direct consequence :} The objective of two consecutive nodes differs from one term.
+
+  \pause
+  \vspace{0.2cm}
+  \begin{block}{Dual objective link}
+    At node $\nodeSymb$, let $\idxentry$ be an unfixed index. Then $\forall \dv \in \kR^{\ddim}$, 
+    \begin{subequations}
+        \begin{align*}
+            \dfunc^{\nodePlusZero{\nodeSymb}{\idxentry}}(\dv) &= \node{\dfunc}(\dv) + [\pivot{}{}(\ktranspose{\atom}_{\idxentry}\dv)]_+
+            \\
+            \dfunc^{\nodePlusOne{\nodeSymb}{\idxentry}}(\dv) &= \node{\dfunc}(\dv) + [\pivot{}{}(\ktranspose{\atom}_{\idxentry}\dv)]_-
+        \end{align*}
+    \end{subequations}
+  \end{block}
+
+  \pause
+
+  \begin{itemize}
+    \item $\forall \dv$, \emphone{$\node{\dfunc}(\dv) \leq \node{\robj}$} : the dual objective can also be used to prune nodes.
+    \item At a given node, we may be able to \emphone{prune subnodes without processing them}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Node-screening test}
+
+  \begin{block}{Node-screening test}
+    Given an upper bound $\UB{\pobj}$ on $\optobj$ and a dual point $\dv \in \kR^{\ddim}$, 
+    \begin{alignat*}{4}
+			\node{\dfunc}(\dv) + [\pivot{}{}(\ktranspose{\atom}_{\idxentry}\dv)]_+ & > \UB{\pobj} & \quad\implies\quad & \text{Fix} \ \pve_{\idxentry} \neq 0 \ \text{at node} \ \nodeSymb \\
+			\node{\dfunc}(\dv) + [\pivot{}{}(\ktranspose{\atom}_{\idxentry}\dv)]_- & > \UB{\pobj} & \quad\implies\quad & \text{Fix} \ \pve_{\idxentry} = 0 \ \text{at node} \ \nodeSymb
+		\end{alignat*}
+  \end{block}
+
+  \pause
+
+  \textbf{Practical use :} If a node-screening test is passed at node $\nodeSymb$, one can immediately \emphone{fix a new variable} at this node. 
+  \\~\\
+
+  \pause
+
+  \textbf{Nesting property :} If \emphone{multiple} node-screening tests are passed, the corresponding variables can be fixed \emphone{simultaneously}.
+\end{frame}
+
+\begin{frame}{Consequence of passing a node-screening test}
+  \begin{figure}
+    \centering
+    \scalebox{1}{\input{img/bnb-l0-screening}}
+  \end{figure}
+  \textbf{Consequence :} Less nodes are explored by the \gls{bnb} algorithm.
+\end{frame}
+
+\section{Some numerical results}
+
+\begin{frame}{Some numerical results}
+  \newcommand{\CPLEX}{\texttt{CPLEX}}
+  \newcommand{\BNB}{\texttt{BnB}}
+  \newcommand{\BNBscr}{\texttt{BnB+scr}}
+  \newcommand{\sparsitylevel}{k}
+
+  \textbf{Synthetic setups :} 
+  \begin{enumerate}
+    \item Generate the dictionary randomly (low or high correlation)
+    \item Generate a $\sparsitylevel$-sparse vector $\opt{\pv}$
+    \item Set $\obs = \dic \opt{\pv}+$ noise
+    \item Tune $\reg$ and $\bigM$ to (hopefully) recover $\opt{\pv}$ by solving \eqref{prob:prob}
+  \end{enumerate}
+
+  \pause
+
+  \textbf{Methods compared :} CPLEX (commercial solver), a tailored \gls{bnb} and a tailored \gls{bnb} \emphone{with node-screening tests}.
+
+  \pause
+
+  \input{img/perf}
+
+\end{frame}
+
+\end{document}

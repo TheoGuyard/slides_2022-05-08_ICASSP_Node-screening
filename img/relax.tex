@@ -1,0 +1,22 @@
+\begin{algorithm}[H]
+	\small{
+	\DontPrintSemicolon
+	\SetKwInOut{Input}{Input}
+	\Input{Initial point $\iter{\pv}{0}$, triplet $\nodeSymb=(\setzero,\setone,\setnone)$}
+	\BlankLine
+	$t \gets 0$\;
+	\While{stopping critering is not met}{
+		$t \gets t + 1$\;
+		Compute a new iterate $\iter{\pv}{t}$\;
+		Recover the values $\iter{\dv}{t}$ and $\transp{\subnone{\dic}}\iter{\dv}{t}$ from the iterate update\;
+		Compute $\node{\dfunc}(\iter{\dv}{t})$ if needed\;
+		\lIf{\Cref{eq:adaptive-stop} is fulfilled}{prune the current node}
+		\For{$\idxscreen \in \setnone$}{
+			Update $(\setzero,\setone,\setnone)$ using \gls{scr0} tests
+		}
+	}
+	Return $\pv$
+	}
+	\caption{Resolution of \eqref{prob:relax-node}}
+	\label{algo:cd}
+\end{algorithm}

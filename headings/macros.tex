@@ -1,0 +1,95 @@
+% ------------------------ %
+% 			Macros		   %
+% ------------------------ %
+
+% Fonts
+\newcommand{\fontset}[1]{\mathcal{#1}}
+\newcommand{\fontnode}[1]{\text{\scshape#1}}
+\newcommand{\fontoptpb}[1]{#1}
+
+% Data
+\newcommand{\pdim}{n}
+\newcommand{\ddim}{m}
+\newcommand{\obs}{\y}
+\newcommand{\dic}{\A}
+\newcommand{\atom}{\a}
+\newcommand{\reg}{\lambda}
+\newcommand{\bigM}{M}
+\newcommand{\pivot}[2]{\boldsymbol{\gamma}_{#1}^{#2}}
+
+% Screening sets
+% \newcommand{\nodeSymb}{\fontnode{n}}
+\newcommand{\nodeSymb}{\nu}
+\newcommand{\nodeSymbIter}[1]{\nodeSymb^{(#1)}}
+\newcommand{\setnodesymb}{\fontset{S}}
+\newcommand{\setzero}{\setnodesymb_0}
+\newcommand{\setone}{\setnodesymb_1}
+\newcommand{\setnone}{\bar{\setnodesymb}}
+
+\newcommand{\nodePlusZero}[2]{#1\cup\{\pve_{#2}=0\}}
+\newcommand{\nodePlusOne}[2]{#1\cup\{\pve_{#2}\neq0\}}
+
+% Superscripts and subscripts
+\newcommand{\subzero}[1]{#1_{\setzero}}
+\newcommand{\subone}[1]{#1_{\setone}}
+\newcommand{\subnone}[1]{#1_{\setnone}}
+\newcommand{\node}[1]{#1^{\nodeSymb}}
+
+% Upper/Lower bounds on optimal values
+\newcommand{\UB}[1]{#1_u}
+\newcommand{\LB}[1]{#1_{l}}
+
+% Problems
+\newcommand{\primalletter}{\fontoptpb{P}}
+\newcommand{\dualletter}{\fontoptpb{D}}
+\newcommand{\mpb}{\primalletter}
+\newcommand{\spb}{\primalletter}
+\newcommand{\hpb}{\UB{\primalletter}}
+\newcommand{\rpb}{\LB{\primalletter}}
+\newcommand{\dpb}{\dualletter}
+
+% Objective values
+\newcommand{\pobj}{p}
+\newcommand{\optobj}{\opt{\pobj}}
+\newcommand{\sobj}{\pobj}
+\newcommand{\hobj}{\UB{\sobj}}
+\newcommand{\robj}{\LB{\sobj}}
+\newcommand{\dobj}{d}
+
+% Objective functions
+\newcommand{\pfunc}{\Prm}
+\newcommand{\hfunc}{\UB{\pfunc}}
+\newcommand{\rfunc}{\LB{\pfunc}}
+\newcommand{\dfunc}{\Drm}
+		
+% Variables
+\newcommand{\pve}{x}
+\newcommand{\bve}{z}
+\newcommand{\dve}{u}
+\newcommand{\pv}{\mathbf{\pve}}
+\newcommand{\pvrelax}{\mathbf{\pve}_l}
+\newcommand{\bv}{\mathbf{\bve}}
+%\newcommand{\dv}{\mathbf{\dve}_l}
+\newcommand{\dv}{\mathbf{\dve}}
+\newcommand{\dvopt}{\dv^\star_l}
+
+\newcommand{\idxentry}{i}
+\newcommand{\idxentrynode}{i}
+\newcommand{\idxscreen}{\ell}
+
+% Operators
+\newcommand{\argmin}{\mathrm{argmin}}
+\newcommand{\argmax}{\mathrm{argmax}}
+\newcommand{\conj}[1]{#1^*}
+\newcommand{\card}[1]{|#1|}
+\newcommand{\grad}{\nabla}
+\newcommand{\Icvx}{\eta}
+\newcommand{\intervint}[2]{\llbracket#1,#2\rrbracket}
+\newcommand{\norm}[2]{\|#1\|_#2}
+\newcommand{\opt}[1]{#1^{\star}}
+\newcommand{\scalprod}[2]{\langle{#1,#2}\rangle}
+\newcommand{\sign}[1]{\mathrm{sign}({#1})}
+\newcommand{\relu}[1]{[#1]_+}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}

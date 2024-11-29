@@ -1,0 +1,16 @@
+\setlength{\tabcolsep}{5pt}
+\begin{table}[!ht]
+	\scriptsize
+	\centering
+    \begin{tabular}{cc||rr|rr|rr}
+	\toprule
+	& & \multicolumn{2}{c|}{\CPLEX{}} & \multicolumn{2}{c|}{\BNB{}} & \multicolumn{2}{c}{\BNBscr{}} \\
+	\textbf{Corr.} & \textbf{Sparsity} & \multicolumn{1}{c}{Nodes} & \multicolumn{1}{c|}{Time} & \multicolumn{1}{c}{Nodes} & \multicolumn{1}{c|}{Time} & \multicolumn{1}{c}{\textbf{Nodes}} & \multicolumn{1}{c}{\textbf{Time}} \\ \midrule\midrule
+    & \(\sparsitylevel=3\) & 16 & 13.13 & 19 & 0.29 & \textbf{15} & \textbf{0.18} \\
+    & \(\sparsitylevel=5\) & 96 & 25.89 & 70 & 1.5 & \textbf{56} & \textbf{0.75} \\
+    \parbox[t]{2mm}{\multirow{-3}{*}{\rotatebox[origin=c]{90}{\textbf{Low}}}} & \(\sparsitylevel=7\) & 292 & 60.84 & 180 & 5.14 & \textbf{152} & \textbf{3.02} \\ \midrule
+	& \(\sparsitylevel=3\) & 76 & 1.73 & 79 & 0.38 & \textbf{60} & \textbf{0.26} \\
+    & \(\sparsitylevel=5\) & 1,424 & 10.18 & 965 & 6.39 & \textbf{725} & \textbf{4.18} \\
+    \parbox[t]{2mm}{\multirow{-3}{*}{\rotatebox[origin=c]{90}{\textbf{High}}}} & \(\sparsitylevel=7\) & 17,647 & 106.45 & 10,461 & 79.29 & \textbf{7,881} & \textbf{52.16} \\ \bottomrule                      
+    \end{tabular}
+\end{table}
